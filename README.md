@@ -1,41 +1,43 @@
 # Q-REG — Formally Verified Deterministic Compliance Runtime
 
-**Mathematically guaranteed enforcement for California regulations.**
+**Mathematically guaranteed enforcement for California regulations.** Violations unrepresentable at compile time.
 
-Q-REG is a high-performance Rust + gRPC runtime with Idris 2 dependent types where regulatory violations are **unrepresentable at compile time**. Built for CCPA, DFPI, SB 253, Delete Act, and federal preemption.
+High-performance Rust + gRPC runtime backed by Idris 2 dependent types and linear logic. Built for CCPA, DFPI, SB 253, Delete Act. Even The Odds Foundry — Jay Sanders (jabrahns-source).
 
 ## Core Capabilities
-- **Performance**: 26k+ RPS sustained, p99 <7µs under bank-grade adversarial load
-- **Formal Verification**: Idris 2 + Linear types — `impossibleViolation` theorems, type-level time windows (`LTE`), linear request lifecycles
-- **ZK Anchoring**: StarkNet proof emission
-- **Empirical Proof**: 100% accuracy on real public DFPI/CPPA enforcement cases
-- **Quantum Extension**: PSI-ALPHA with Golden Cycloidic optimization
+- **Performance**: 26k+ RPS, p99 <7µs adversarial
+- **Formal Verification**: Idris 2 linear/dependent types — `impossibleViolation`, type-level deadlines, linear lifecycles
+- **ZK**: StarkNet anchoring
+- **Proof**: 100% DFPI backtest match + PSI-ALPHA quantum extension
 
 ## Why It Matters
-Most compliance tools give you PDFs and dashboards.  
-**Q-REG gives you mathematical proof** that regulators and auditors cannot dismiss.
+PDF compliance is dead. Q-REG ships compile-time mathematical proof regulators can't ignore. Deterministic moat from a Chromebook in Redding.
 
 ## Quick Start
-
 ```bash
-cd runtime
-cargo build --release
-./target/release/q-reg-runtime grpc
+git clone https://github.com/jabrahns-source/Q-Reg.git
+cd Q-Reg
+
+# Runtime
+cd runtime && cargo build --release
+
+# Formal proofs (the moat)
+cd ../formal && idris2 --check Compliance.idr && idris2 --check LinearLifecycle.idr
 ```
 
-## Formal Verification (The Moat)
+## Structure
+- `formal/` — Idris proofs (source of truth)
+- `runtime/` — Rust gRPC
+- `tests/` — Backtester
+- `zk/` — StarkNet
+- `docs/` — Pitch/term sheets
 
-- `Compliance.idr` — Full regulatory ontology with dependent types
-- `LinearLifecycle.idr` — Compile-time verified state machine
-- `RustBridge.idr` — Proven extraction to Rust runtime
-- Violations (e.g. 46-day deletion) are rejected at compile time
+## Formal Verification
+Total proofs in `formal/`:
+- `Compliance.idr`: Ontology + `impossibleViolation` (LTE/GT contradictions)
+- `LinearLifecycle.idr`: Safe transitions, no late fulfills
+- Violations structurally impossible.
 
-## Repository Structure
-- `runtime/` — Rust + gRPC production core
-- `formal/` — Idris 2 proofs (source of truth)
-- `tests/` — Backtester + chaos engine
-- `zk/` — StarkNet integration
-- `docs/` — Pitch deck, ROI, one-pagers
+**Seeking**: SPI/PG&E pilots, grant collabs, feedback.
 
-**Even The Odds Foundry** — Jay Sanders  
-Building deterministic infrastructure from first principles.
+Apache 2.0. Built to leave the name in history.
