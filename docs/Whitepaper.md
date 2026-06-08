@@ -1,0 +1,1 @@
+Full whitepaper content from artifacts

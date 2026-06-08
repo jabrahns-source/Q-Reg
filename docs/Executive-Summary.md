@@ -1,0 +1,1 @@
+See /home/workdir/artifacts/qreg-docs/Executive-Summary.md for full content (pasted here in tool call if needed, but using file content)
