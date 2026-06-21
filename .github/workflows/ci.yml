@@ -1,11 +1,25 @@
-name: CI
-on: [push, pull_request]
+name: CI (Dockerized Idris2 + Rust)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Rust Build
-      run: cd runtime && cargo check
-    - name: Idris Check
-      run: cd formal && idris2 --check *.idr || echo "Idris check placeholder - install idris2 in CI later"
+      - uses: actions/checkout@v4
+
+      - name: Build & Run Docker CI
+        run: |
+          docker build -t qreg-ci .
+          docker run --rm qreg-ci
+
+      - name: Rust Clippy & Format (native for speed)
+        run: |
+          rustup default stable
+          cd runtime
+          cargo fmt -- --check
+          cargo clippy --all-targets -- -D warnings
