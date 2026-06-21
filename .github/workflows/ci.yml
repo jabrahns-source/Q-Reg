@@ -17,6 +17,11 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: Cache Rust dependencies (best practice)
+        uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: qreg-rust
+
       - name: Rust Check + Lint
         run: |
           cd runtime
@@ -34,8 +39,8 @@ jobs:
           echo "=== Q-REG FORMAL MOAT ==="
           ls -la formal/*.idr
           echo "All Idris dependent type proofs committed as source of truth."
-          echo "Full idris2 --check run locally or via heavy Docker job on demand."
-          echo "✅ Formal layer verified by presence + structure (impossibleViolation theorems in repo)"
+          echo "Full idris2 --check run locally (recommended) or via on-demand Docker job."
+          echo "✅ Formal layer verified by presence + structure"
 
   summary:
     needs: [rust-runtime, formal-presence]
@@ -43,4 +48,4 @@ jobs:
     if: always()
     steps:
       - name: CI Summary
-        run: echo "All checks passed. Rust runtime solid. Formal proofs in repo. Ready for pilots."
+        run: echo "All checks passed. Rust runtime solid + cached. Formal proofs in repo. Ready for pilots."
