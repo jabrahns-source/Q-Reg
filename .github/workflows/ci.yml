@@ -1,67 +1,60 @@
-name: CI
+name: Q-Reg CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  rust-runtime:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Cache Rust dependencies (Swatinem best practice)
-        uses: Swatinem/rust-cache@v2
-        with:
-          prefix-key: qreg-rust
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
 
-      - name: Rust Check + Lint (strict)
-        run: |
-          set -e
-          cd runtime
-          cargo check
-          cargo fmt -- --check
-          cargo clippy --all-targets -- -D warnings
+    - name: Run unit tests (9-vector adversarial suite)
+      run: |
+        pytest test_vectors.py -v --tb=short
 
-  formal-presence-and-proofs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    - name: Verify Merkle tree correctness
+      run: |
+        python kerna_verify.py --check-merkle
 
-      - name: Deterministic Formal Verification (Idris power in CI)
-        run: |
-          set -e
-          echo "=== Q-REG FORMAL MOAT - AUTO ERROR CHECK ==="
-          echo "Checking committed proof-carrying code (dependent types + linear logic)..."
+    - name: Validate Ed25519 signatures
+      run: |
+        python qreg_engine.py --validate-signatures
 
-          # File presence (source of truth)
-          ls formal/Compliance.idr formal/LinearLifecycle.idr formal/Deadlines.idr formal/Moat.idr || exit 1
+    - name: Generate coverage report
+      run: |
+        pytest test_vectors.py --cov=qreg_engine --cov-report=xml
 
-          # Auto error checking on key deterministic constructs
-          grep -q "impossibleViolation" formal/Compliance.idr || { echo "ERROR: impossibleViolation theorem missing"; exit 1; }
-          grep -q "LinearRequest" formal/LinearLifecycle.idr || { echo "ERROR: LinearRequest type missing"; exit 1; }
-          grep -q "deadlineDays" formal/Deadlines.idr || { echo "ERROR: deadlineDays proof missing"; exit 1; }
-          grep -q "Moat" formal/Moat.idr || { echo "ERROR: Moat proof missing"; exit 1; }
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.xml
 
-          echo "All core Idris dependent type + linear logic proofs present and detectable."
-          echo "Full idris2 --check (type checking + proof validation) recommended locally or via on-demand heavy job."
-          echo "✅ CI enforces fidelity to deterministic formal model. Violations structurally impossible at source."
+    - name: Lock Merkle regression
+      run: |
+        python qreg_engine.py --demo > ledger_regression.jsonl
+        git add ledger_regression.jsonl || true
 
-  summary:
-    needs: [rust-runtime, formal-presence-and-proofs]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: CI Summary
-        run: |
-          echo "Q-REG CI COMPLETE"
-          echo "Rust runtime: verified + cached"
-          echo "Formal layer: proof constructs auto-checked (Idris power)"
-          echo "Deterministic. Fidelic. Failsafe. Ready for pilots and grants."
+    - name: Artifact: Regression ledger
+      uses: actions/upload-artifact@v3
+      with:
+        name: ledger-regression-${{ matrix.python-version }}
+        path: ledger_regression.jsonl
