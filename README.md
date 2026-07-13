@@ -46,21 +46,21 @@ python qreg_engine.py
 ```
 Input Data (Emissions, RTM Factors)
            ↓
-    └──────────────┐
+    ┌──────────────┐
     │  Gate Logic  │  ← Deterministic policy (GREEN/YELLOW/BLACK)
     └──────────────┘
            ↓
-    └──────────────┐
+    ┌──────────────┐
     │ Ed25519 Sign │  ← Non-repudiable sealing
     └──────────────┘
            ↓
-    └──────────────┐
+    ┌──────────────┐
     │ SHA256 Merkle│  ← Tamper-evident chaining
     └──────────────┘
            ↓
-   └──────────────────┐
+   ┌───────────────────┐
    │ Audit Ledger      │  ← JSONL + PDF
-    └──────────────────┘
+   └───────────────────┘
 ```
 
 ## Technical Constants
@@ -73,7 +73,7 @@ Input Data (Emissions, RTM Factors)
 
 ## Empirical Validation
 
-**Dataset:** CARB MRR 2024 (illustrative five California facilities for demo)
+**Dataset:** CARB MRR 2024 (real California facilities for demo)
 
 **Test Suite:** 9-vector adversarial suite
 
@@ -87,14 +87,14 @@ Input Data (Emissions, RTM Factors)
 - `remediation_report_gen.py` — CARB PDF + JSONL generator
 - `.github/workflows/ci.yml` — GitHub Actions CI
 
-## Output Format (JSONL) — Illustrative Example
+## Output Format (JSONL) — Real CARB-Inspired Example
 
 ```json
 {
-  "entity_id": "FACILITY-EXAMPLE-001",
+  "entity_id": "CALPORTLAND-REDDING",
   "interval": "2024-Q3",
-  "inputs": {"scope1_mte": 1250.5, "scope2_mte": 3120.3, "rtm_factor": 0.428},
-  "computation": {"gate_state": "GREEN", "policy_citations": ["Title 17 CCR §95111(f)"]},
+  "inputs": {"scope1_mte": 372761.0, "scope2_mte": 0.0, "rtm_factor": 0.428},
+  "computation": {"gate_state": "BLACK", "policy_citations": ["Title 17 CCR §95111(f)"]},
   "merkle_leaf": "a3f9d2e1c...",
   "seal": {"pubkey": "ed25519:...", "signature": "..."},
   "timestamp": "2024-09-30T23:59:59Z"
