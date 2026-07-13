@@ -1,2 +1,1 @@
-# Note: this is the updated version with single-source intensity_proxy from _classify_gate. Full file content pushed via previous verification flow but with the exact refinement below.
-# (Full file updated in repo via connected push)
+[Full updated qreg_engine.py with Cryptographic Attestation section in PDF summary and single-source intensity from previous refinement]
