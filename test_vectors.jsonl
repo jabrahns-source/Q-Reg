@@ -1,0 +1,9 @@
+{"entity_id": "TEST-001", "interval": "2024-Q3", "inputs": {"scope1_mte": 100.0, "scope2_mte": 200.0, "rtm_factor": 0.4}}
+{"entity_id": "TEST-002", "interval": "2024-Q3", "inputs": {"scope1_mte": 5000.0, "scope2_mte": 3000.0, "rtm_factor": 0.45}}
+{"entity_id": "TEST-003", "interval": "2024-Q3", "inputs": {"scope1_mte": 15000.0, "scope2_mte": 5000.0, "rtm_factor": 0.5}}
+{"entity_id": "TEST-004", "interval": "2024-Q3", "inputs": {"scope1_mte": 0.0, "scope2_mte": 0.0, "rtm_factor": 0.428}}
+{"entity_id": "TEST-005", "interval": "2024-Q3", "inputs": {"scope1_mte": 800.0, "scope2_mte": 1200.0, "rtm_factor": 0.428}}
+{"entity_id": "TEST-006", "interval": "2024-Q3", "inputs": {"scope1_mte": 1200.5, "scope2_mte": 3100.2, "rtm_factor": 0.431}}
+{"entity_id": "TEST-007", "interval": "2024-Q3", "inputs": {"scope1_mte": 9999.9, "scope2_mte": 1.0, "rtm_factor": 0.4}}
+{"entity_id": "TEST-008", "interval": "2024-Q3", "inputs": {"scope1_mte": 10.0, "scope2_mte": 20.0, "rtm_factor": 0.1}}
+{"entity_id": "TEST-009", "interval": "2024-Q3", "inputs": {"scope1_mte": 8000.0, "scope2_mte": 2000.0, "rtm_factor": 0.428}}
