@@ -1,3 +1,39 @@
+# Python
 __pycache__/
 *.py[cod]
-...
+*$py.class
+*.so
+.Python
+venv/
+.env
+.venv/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Rust
+runtime/target/
+**/target/
+**/*.rs.bk
+Cargo.lock
+
+# Outputs & reports
+ledger.jsonl
+*.pdf
+remediation_report.md
+remediation_report.pdf
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Secrets (never commit)
+*.pem
+*.key
+secrets/
