@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -31,7 +32,7 @@ jobs:
 
     - name: Run unit tests (9-vector adversarial suite)
       run: |
-        pytest test_vectors.py -v --tb=short
+        python -m pytest test_vectors.py -v --tb=short
 
     - name: Z3 formal verification — gate logic certificates
       run: |
@@ -51,7 +52,7 @@ jobs:
 
     - name: Generate coverage report
       run: |
-        pytest test_vectors.py --cov=qreg_engine --cov-report=xml --cov-report=term || true
+        python -m pytest test_vectors.py --cov=qreg_engine --cov-report=xml --cov-report=term || true
 
     - name: Upload coverage artifact
       if: always()

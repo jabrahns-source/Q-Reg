@@ -10,6 +10,7 @@ Implements:
 
 All decisions are pure functions of inputs + fixed policy constants.
 No randomness, no external network calls in the critical path.
+Demo uses a fixed deterministic key for reproducible ledgers.
 """
 
 from __future__ import annotations
@@ -35,6 +36,11 @@ RTM_YELLOW = 0.35
 RTM_BLACK = 0.50
 
 VALID_GATES = {"GREEN", "YELLOW", "BLACK"}
+
+# Fixed 32-byte seed for deterministic demo key (RFC 8032 private key material)
+_DEMO_SEED = bytes.fromhex(
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+)
 
 
 @dataclass
@@ -72,11 +78,13 @@ class QRegEngine:
     One instance owns a single Merkle tree for the processing session.
     """
 
-    def __init__(self, private_key: Optional[Ed25519PrivateKey] = None):
-        if private_key is None:
-            self._private_key = Ed25519PrivateKey.generate()
-        else:
+    def __init__(self, private_key: Optional[Ed25519PrivateKey] = None, deterministic: bool = False):
+        if private_key is not None:
             self._private_key = private_key
+        elif deterministic:
+            self._private_key = Ed25519PrivateKey.from_private_bytes(_DEMO_SEED)
+        else:
+            self._private_key = Ed25519PrivateKey.generate()
         self._public_key = self._private_key.public_key()
         self.merkle = MerkleNode()
         self._running_root: Optional[str] = None
@@ -185,8 +193,8 @@ class QRegEngine:
 
 
 def demo() -> None:
-    """Self-contained demo that produces a small sealed ledger."""
-    engine = QRegEngine()
+    """Self-contained demo that produces a small sealed ledger with deterministic key."""
+    engine = QRegEngine(deterministic=True)
     samples = [
         ("FAC-GREEN-01", "2024-Q3", {"scope1_mte": 12000.0, "scope2_mte": 800.0, "rtm_factor": 0.22}),
         ("FAC-YELLOW-02", "2024-Q3", {"scope1_mte": 78000.0, "scope2_mte": 0.0, "rtm_factor": 0.41}),
@@ -194,7 +202,8 @@ def demo() -> None:
     ]
     records = []
     for eid, interval, inputs in samples:
-        rec = engine.process_record(eid, interval, inputs)
+        # Fixed timestamp for full determinism in CI
+        rec = engine.process_record(eid, interval, inputs, timestamp="2024-10-01T00:00:00Z")
         records.append(rec)
         print(f"{eid}: gate={rec['computation']['gate_state']} leaf={rec['merkle_leaf'][:16]}...")
 
@@ -205,14 +214,19 @@ def demo() -> None:
     print("Wrote ledger.jsonl")
 
 
-if __name__ == "__main__":
-    if "--demo" in sys.argv or len(sys.argv) == 1:
+def main() -> int:
+    args = sys.argv[1:]
+    if not args or "--demo" in args:
         demo()
-        sys.exit(0)
-    elif "--help" in sys.argv or "-h" in sys.argv:
-        print("Usage: python qreg_engine.py [--demo]")
-        print("  --demo   Run deterministic demo and write ledger.jsonl")
-        sys.exit(0)
-    else:
-        print("Unknown arguments. Use --demo or --help.")
-        sys.exit(1)
+        return 0
+    if "--help" in args or "-h" in args:
+        print("Usage: python qreg_engine.py [--demo] [--help]")
+        print("  --demo   Run deterministic demo and write ledger.jsonl (default if no args)")
+        print("  --help   Show this help")
+        return 0
+    print("Unknown arguments. Use --demo or --help.", file=sys.stderr)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
