@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -205,8 +206,13 @@ def demo() -> None:
 
 
 if __name__ == "__main__":
-    import sys
-    if "--demo" in sys.argv:
+    if "--demo" in sys.argv or len(sys.argv) == 1:
         demo()
+        sys.exit(0)
+    elif "--help" in sys.argv or "-h" in sys.argv:
+        print("Usage: python qreg_engine.py [--demo]")
+        print("  --demo   Run deterministic demo and write ledger.jsonl")
+        sys.exit(0)
     else:
-        demo()
+        print("Unknown arguments. Use --demo or --help.")
+        sys.exit(1)
