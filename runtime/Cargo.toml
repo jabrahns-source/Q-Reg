@@ -2,6 +2,16 @@
 name = "q-reg-runtime"
 version = "0.1.0"
 edition = "2021"
+authors = ["Jacarri Sanders <Even The Odds Foundry>"]
+description = "Thin deterministic runtime host for Q-REG (formal proofs in ../formal). gRPC surface planned."
+license = "MIT"
+repository = "https://github.com/jabrahns-source/Q-Reg"
 
 [dependencies]
-# Add tonic, tokio for gRPC later
+# Future: tonic = "0.12", tokio = { version = "1", features = ["full"] }, prost = "0.13"
+# Current reference executable surface remains the Python engine (qreg_engine.py).
+# This crate will host the extracted decision procedures once Idris 2 → Rust bridge is complete.
+
+[profile.release]
+lto = true
+codegen-units = 1
