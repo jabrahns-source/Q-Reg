@@ -21,10 +21,14 @@ from cryptography.exceptions import InvalidSignature
 def load_ledger(path: Path) -> List[Dict[str, Any]]:
     records = []
     with open(path, "r", encoding="utf-8") as f:
-        for line in f:
+        for line_no, line in enumerate(f, 1):
             line = line.strip()
-            if line:
+            if not line:
+                continue
+            try:
                 records.append(json.loads(line))
+            except json.JSONDecodeError as e:
+                raise SystemExit(f"Invalid JSON on line {line_no}: {e}") from e
     return records
 
 
@@ -77,18 +81,19 @@ def validate_signatures(records: List[Dict[str, Any]]) -> bool:
 def check_gate_consistency(records: List[Dict[str, Any]]) -> bool:
     """Basic sanity: every record has a valid gate state."""
     valid_gates = {"GREEN", "YELLOW", "BLACK"}
+    ok = True
     for i, rec in enumerate(records):
         gate = rec.get("computation", {}).get("gate_state")
         if gate not in valid_gates:
-            print(f"Record {i}: Invalid gate state {gate}")
-            return False
-    return True
+            print(f"Record {i}: Invalid gate state {gate!r}")
+            ok = False
+    return ok
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Kerna Verify — Q-Reg Ledger Verifier")
     parser.add_argument("--ledger", type=Path, default=Path("ledger.jsonl"), help="Path to ledger.jsonl")
-    parser.add_argument("--check-merkle", action="store_true", help="Recompute and print Merkle root")
+    parser.add_argument("--check-merkle", action="store_true", help="Recompute Merkle root and hard-fail on mismatch")
     parser.add_argument("--validate-signatures", action="store_true", help="Validate all Ed25519 signatures")
     parser.add_argument("--pubkey", type=str, help="Optional: specific pubkey to check against (v1 placeholder)")
     args = parser.parse_args()
@@ -100,6 +105,10 @@ def main() -> int:
     records = load_ledger(args.ledger)
     print(f"Loaded {len(records)} records from {args.ledger}")
 
+    if not records:
+        print("Empty ledger — nothing to verify.")
+        return 0
+
     exit_code = 0
 
     if args.check_merkle:
@@ -109,14 +118,17 @@ def main() -> int:
         if last_root and computed_root == last_root:
             print("✓ Merkle root matches last running root (consistent)")
         else:
-            print("⚠ Merkle root check: review running vs recomputed")
+            print("✗ Merkle root MISMATCH")
+            print(f"  last running_merkle_root : {last_root}")
+            print(f"  recomputed root          : {computed_root}")
+            exit_code = 3
 
     if args.validate_signatures:
         if validate_signatures(records):
             print("✓ All signatures valid")
         else:
             print("✗ Signature validation failed on one or more records")
-            exit_code = 2
+            exit_code = max(exit_code, 2)
 
     if check_gate_consistency(records):
         print("✓ Gate states consistent")
