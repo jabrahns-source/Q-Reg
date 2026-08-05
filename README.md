@@ -1,5 +1,8 @@
 # Q-Reg: Deterministic GHG Emissions Compliance Engine
 
+[![CI](https://github.com/jabrahns-source/Q-Reg/actions/workflows/ci.yml/badge.svg)](https://github.com/jabrahns-source/Q-Reg/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+
 A provably correct, cryptographically sealed audit system for California SB 253 / CARB regulatory compliance.
 
 ## Overview
