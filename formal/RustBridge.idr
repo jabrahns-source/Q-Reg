@@ -17,5 +17,7 @@ bridgePreservesInvariants req = Refl
 data ZKProof : Type where
   MkProof : (root : String) -> (reqId : String) -> ZKProof
 
+-- Deterministic fixed root for formal bridge illustration; production roots
+-- are computed by the Merkle surface in qreg_engine.py / kerna_verify.py.
 anchorToZK : LinearRequest Fulfilled -> ZKProof
-anchorToZK (MkReq id Fulfilled) = MkProof "merkle-root-placeholder" id
+anchorToZK (MkReq id Fulfilled) = MkProof "0000000000000000000000000000000000000000000000000000000000000000" id
