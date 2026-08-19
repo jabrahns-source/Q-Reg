@@ -9,63 +9,47 @@ on:
 
 jobs:
   test:
+    name: Python Verification (Free Runner)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.11', '3.12']
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
 
-    - name: Run unit tests (9-vector adversarial suite)
-      run: |
-        python -m pytest test_vectors.py -v --tb=short
+      - name: Run unit tests
+        run: python -m pytest test_vectors.py -v --tb=short
 
-    - name: Z3 formal verification — gate logic certificates
-      run: |
-        python verification/verify_gate_logic.py
+      - name: Z3 gate logic verification
+        run: python verification/verify_gate_logic.py
 
-    - name: Generate demo ledger (deterministic)
-      run: |
-        python qreg_engine.py --demo
+      - name: Generate deterministic demo ledger
+        run: python qreg_engine.py --demo
 
-    - name: Verify Merkle tree correctness
-      run: |
-        python kerna_verify.py --ledger ledger.jsonl --check-merkle
+      - name: Verify Merkle tree
+        run: python kerna_verify.py --ledger ledger.jsonl --check-merkle
 
-    - name: Validate Ed25519 signatures
-      run: |
-        python kerna_verify.py --ledger ledger.jsonl --validate-signatures
+      - name: Validate Ed25519 signatures
+        run: python kerna_verify.py --ledger ledger.jsonl --validate-signatures
 
-    - name: Generate coverage report
-      run: |
-        python -m pytest test_vectors.py --cov=qreg_engine --cov-report=xml --cov-report=term || true
-
-    - name: Upload coverage artifact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-${{ matrix.python-version }}
-        path: coverage.xml
-        if-no-files-found: ignore
-
-    - name: Artifact — regression ledger
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: ledger-regression-${{ matrix.python-version }}
-        path: ledger.jsonl
-        if-no-files-found: ignore
+      - name: Upload ledger artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ledger-${{ matrix.python-version }}
+          path: ledger.jsonl
+          if-no-files-found: ignore
