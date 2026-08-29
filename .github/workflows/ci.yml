@@ -53,3 +53,19 @@ jobs:
           name: ledger-${{ matrix.python-version }}
           path: ledger.jsonl
           if-no-files-found: ignore
+
+  rust-runtime:
+    name: Rust runtime host
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: cargo check + run gate surface
+        working-directory: runtime
+        run: |
+          cargo check --locked=false
+          cargo run --quiet
+      - name: artifact hygiene
+        run: |
+          ! find . -type d \( -name target -o -name node_modules -o -name __pycache__ -o -name dist \) -not -path './.git/*' | grep .
+          ! find . -name '*.pyc' | grep .

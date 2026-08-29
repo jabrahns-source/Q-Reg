@@ -2,6 +2,10 @@
 # It is not intended for manual editing.
 version = 4
 
+# q-reg-runtime is std-only. No third-party crates are declared in Cargo.toml.
+# A lockfile with a single [[package]] entry is therefore complete and correct.
+# When tonic/tokio/prost are added, regenerate with `cargo generate-lockfile`.
+
 [[package]]
 name = "q-reg-runtime"
 version = "0.1.1"
