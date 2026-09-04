@@ -1,0 +1,11 @@
+Q-Reg
+Copyright 2026 Jacarri Sanders (Even The Odds Foundry)
+
+SPDX-License-Identifier: Apache-2.0
+
+This product includes software developed by Even The Odds Foundry.
+See ./LICENSE for the Apache License, Version 2.0 terms used by this repository.
+
+Canonical engine for Kerna-Ledger / VERA deterministic compliance.
+Formal surface: ./formal
+Runtime: ./runtime (Rust) and qreg_engine.py
